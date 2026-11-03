@@ -1,0 +1,1 @@
+practice code (terraform code and k8s)
