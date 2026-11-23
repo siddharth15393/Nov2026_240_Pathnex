@@ -1,0 +1,232 @@
+# Day 23 — Tags, EIP, HPA, Kill Process
+
+## 🔹 Ansible — Add Tags to Users
+
+---
+- name: Create users with comments
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Create Pathnex user
+      user:
+        name: devuser
+        comment: "Pathnex Developer User"
+
+#=================================================================================
+        Day-23 ## 🔹 Ansible — Add Tags to Users
+#=================================================================================
+---
+- name: Create users With Comments
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Create Pathnex User
+      user:
+        name: devuser
+        comment: "Pathnex Developer User"
+-------------X------------------X-----------------X---------------X---------------
+
+## 🔹 Terraform — Elastic IP
+
+resource "aws_eip" "PathnexEIP" {
+  instance = aws_instance.PathnexEC2.id
+
+  tags = {
+    Name = "Pathnex-EIP"
+  }
+}
+
+#=================================================================================
+	Day-23 ## 🔹 Terraform — Elastic IP
+#=================================================================================
+
+resource "aws_eip" "PathnexEIP" {
+  instance = aws_instance.PathnexEC2.id
+  tags = {
+    Name = "Pathnex-EIP"
+  }
+}
+-------------X------------------X-----------------X---------------X---------------
+## 🔹 Kubernetes — Horizontal Pod Autoscaler (HPA)
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: pathnex-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pathnex-deploy
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
+#=================================================================================
+		Day-23 ## 🔹 Kubernetes — Horizontal Pod Autoscaler (HPA)
+#=================================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata: 
+   name: pathnex-app
+spec:
+   scaleTargetRef:
+     apiVersion: apps/v1
+     kind: Deployment
+     name: pathnex-deploy
+   minReplicas: 2
+   maxReplicas: 6
+   metrics: 
+     - type: Resource
+       resources:
+         name: cpu
+	 target:
+	   type: Utilization
+	   averageUtilization: 50
+-------------------------X_-----------------X----------------X---------------X------
+
+
+## 🔹 Shell Script — Kill High CPU Process
+
+#!/bin/bash
+
+PID=$(ps aux --sort=-%cpu | awk 'NR==2{print $2}')
+
+echo "Killing process: $PID"
+kill -9 $PID
+
+#==================================================================================
+		Day-23 🔹 Shell Script — Kill High CPU Process
+#==================================================================================
+
+#!/bin/bash
+
+PID=$(ps aux --sort=-%cpu | awk 'NR==2{print $2}')
+echo "Killling process: PID"
+kill -9 $PID
+
+-------------------------X_-----------------X----------------X---------------X------
+
+# Docker Integration
+
+## 🔹 Jenkins Pipeline — Build Docker Image
+You will learn how to **build and tag Docker images** with proper labels.
+
+pipeline {
+    agent any
+    environment {
+        INSTITUTE_NAME = "Pathnex"
+        TEAM = "DevOps"
+        ENV = "staging"
+        PROJECT = "WebApp"
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                git url: 'https://github.com/Pathnex/sample-java-app.git'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                docker build -t pathnex/webapp:${ENV}-${BUILD_NUMBER} \
+                --label "INSTITUTE_NAME=$INSTITUTE_NAME" \
+                --label "TEAM=$TEAM" \
+                --label "ENV=$ENV" \
+                --label "PROJECT=$PROJECT" .
+                '''
+            }
+        }
+    }
+}
+#==================================================================================
+		Day-23 ## 🔹 Jenkins Pipeline — Build Docker Image
+#==================================================================================
+pipeline {
+    agent any
+    environment {
+	INSTITUE_NAME = "Pathnex"
+	TEAM = "Devops"
+	ENV = "staging"
+	PROJECT = "WebApp"
+    }
+    stages {
+	stage {
+           steps {
+		git url: 'https://github.com/Pathnex/sample-java-app.git'
+	   }
+	}
+	stage('Build Docker Image'){
+	   steps {
+		sh '''
+		docker build -t pathnex/webapp:${ENV}-${BUILD_NUMBER} \
+		--label "INSTITUE_NAME=$INSTITUE_NAME" \
+		--label "TEAM=$TEAM" \
+		--label "ENV=$ENV" \
+		--label "PROJECT=$PROJECT"
+		'''
+	   }
+	}
+    }
+
+
+}
+
+-----------------------X---------------X------------X--------------X-------------X--
+
+## 🔹 GitLab CI — Build Docker Image
+You will learn how to **build Docker images in GitLab CI**.
+
+stages:
+  - docker-build
+
+variables:
+  INSTITUTE_NAME: "Pathnex"
+  TEAM: "DevOps"
+  ENV: "staging"
+  PROJECT: "WebApp"
+
+docker-build:
+  stage: docker-build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker build -t pathnex/webapp:${ENV}-${CI_PIPELINE_ID} \
+      --label "INSTITUTE_NAME=$INSTITUTE_NAME" \
+      --label "TEAM=$TEAM" \
+      --label "ENV=$ENV" \
+      --label "PROJECT=$PROJECT" .
+
+#=====================================================================================
+		DAY-23 ## 🔹 GitLab CI — Build Docker Image
+#=====================================================================================
+
+stages:
+  - docker-build
+
+variables:
+  	INSTITUTE_NAME: "Pathnex"
+	TEAM: "DevOps"
+	ENV: "staging"
+	PROJECT: "WebApp"
+
+docker-build:
+  stage: docker-build
+  image: docker:latest
+  services:
+    - docker:build
+  script:
+    - docker build -t pathnex/webapp:${ENV}-${CI_PIPELINE_ID} \
+      --label "INSTITUE_NAME=$INSTITUE_NAME"
+      --label "TEAM=$TEAM"
+      --label	"ENV=$ENV"
+      --label  "PROJECT=$PROJECT" .
+------------X---------------X------------X------------X-----------X----------X--------
