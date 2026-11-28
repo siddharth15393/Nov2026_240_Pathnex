@@ -1,0 +1,125 @@
+# Day 27 — Serverless Scaling with Lambda and DynamoDB
+🔹 Ansible — Deploy Serverless Lambda Functions
+- name: Deploy Serverless Lambda Function
+  hosts: localhost
+  tasks:
+    - name: Create Lambda function
+      command: aws lambda create-function --function-name pathnex-lambda --runtime nodejs14.x --role arn:aws:iam::123456789012:role/lambda-role --handler index.handler --zip-file fileb://lambda.zip
+#==================================================================================================================
+		Day27 🔹 Ansible — Deploy Serverless Lambda Function
+#==================================================================================================================
+- name: Deploy Serverless Lambda Function
+  hosts: localhost
+  tasks:
+    - name: Create Lambda fuction
+      command: aws lambda create-function --function-name pathnex-lambda --runtime nodejs14.x --role arn:aws:iam::123456789012:role/lambda-role --handler index.handler --zip-file fileb://lambda.zip
+-----------X-----------XXXXX-----------X-----------------X----------------X----------------X---------------x-------
+
+🔹 Terraform — Create DynamoDB Table for Serverless Application
+resource "aws_dynamodb_table" "pathnex_table" {
+  name           = "pathnex-table"
+  hash_key       = "id"
+  billing_mode   = "PAY_PER_REQUEST"
+  attribute {
+    name = "id"
+    type = "S"
+  }
+}
+#==================================================================================================================
+		Day 27 🔹 Terraform — Create DynamoDB Table for Serverless Application
+#==================================================================================================================
+resource "aws_dynamodb_table" "pathnex_table" {
+   name = "pathnex-table"
+   hash_key = "id"
+   billing_mode = "PAY_PER_REQUEST"
+   attribute {
+	name = "id"
+	type = "S"
+   }
+}
+-----------X-----------XXXXX-----------X-----------------X----------------X----------------X---------------x-------
+🔹 Kubernetes — Deploy Serverless Using Kubeless
+apiVersion: kubeless.io/v1beta1
+kind: Function
+metadata:
+  name: pathnex-lambda
+  namespace: default
+spec:
+  runtime: nodejs14
+  handler: index.handler
+  function: |
+    module.exports = function(event, context) {
+      context.succeed('Hello World');
+    };
+#==================================================================================================================
+		Day27 🔹 Kubernetes — Deploy Serverless Using Kubeless
+#==================================================================================================================
+apiVersion: kubeless.io/v1beta1
+kind: Function
+metadata:
+  name: pathnex-lambda
+  namespace: default
+spec:
+  runtime: nodejs14
+  handler: index.handler
+  function: | 
+    module.exports = function(event,context) {
+	context.succeed('Hello World')
+    }
+--------------X----------------X-----------------X----------------X------------X---------------X--------------X------
+🔹 Jenkinsfile — Lambda Function Deployment Pipeline
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building Lambda function package...'
+                sh 'zip -r lambda.zip lambda/'
+            }
+        }
+        stage('Deploy to Lambda') {
+            steps {
+                script {
+                    sh 'aws lambda update-function-code --function-name pathnex-lambda --zip-file fileb://lambda.zip'
+                }
+            }
+        }
+    }
+}
+#==================================================================================================================
+		Day27 🔹 Jenkinsfile — Lambda Function Deployment Pipeline
+#==================================================================================================================
+pipeline {
+   agent any 
+   stages {
+	stage('Build') {
+	    steps {
+		echo 'Building Lambda function package...'
+		sh 'zip -r lambda.zip lambda/'
+	    }
+	}
+	stage('Deploy to Lambda') {
+            steps {
+	        script {
+		sh 'aws lambda update-function-code --function-name pathnex-lambda --zip-file fileb://lambda.zip' 
+	       }
+	    }
+	}
+   }
+}
+-----------X-----------------X----------------X----------------X------------------X-----------------X----------------
+🔹 Docker
+# Docker Exec & Resource Limits
+docker exec -it pathnex-nginx bash
+docker stats
+
+# Bash
+docker run -d --memory="512m" --cpus="1.0" nginx
+#==================================================================================================================
+		Day27 # Docker Exec & Resource Limits
+#==================================================================================================================
+docker exec -it pathnex-nginx bash
+docker stats
+
+docker run -d --memory="512m" --cpus="1.0" nginx
+-----------X-----------------X----------------X----------------X------------------X-----------------X----------------
